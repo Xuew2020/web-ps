@@ -1,3 +1,5 @@
-import { add } from './utils/util';
+export { default as ImageLayer } from './core/ImageLayer';
 
-console.log(add(1, 2));
+import ImageLayer from './core/ImageLayer';
+
+window.ImageLayer = ImageLayer;

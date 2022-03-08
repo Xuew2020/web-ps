@@ -1,4 +1,5 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: 'production',
@@ -17,6 +18,16 @@ module.exports = {
         exclude: /node_modules/,
       }]
   },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './example/test.html',
+      HtmlWebpackPlugin: {
+        files: {
+          webps: 'webps.min.js',
+        }
+      }
+    }),
+  ],
   resolve: {
     extensions: ['.js', '.ts'],
     modules: ['src', 'node_modules'],
