@@ -1,16 +1,4 @@
-export type IColorRange = number;
-
-export interface IRgb {
-  r: IColorRange;
-  g: IColorRange;
-  b: IColorRange;
-}
-
-export interface IHsv {
-  h: IColorRange;
-  s: IColorRange;
-  v: IColorRange;
-}
+import { IRgb, IColorRange, IHsv } from '../type/global';
 
 export const rgb2Gray = ({ r, g, b }: IRgb) => {
   return r * 0.299 + g * 0.587 + b * 0.114;
