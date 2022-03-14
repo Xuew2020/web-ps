@@ -1,0 +1,1 @@
+export const crateElement = document.createElement;
