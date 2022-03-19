@@ -22,4 +22,5 @@ export default ({ width, height }) => {
   cxt.fillStyle = cxt.createPattern(bg, "repeat");
   cxt.beginPath();
   cxt.fillRect(0, 0, width, height);
+  return canvas;
 };
