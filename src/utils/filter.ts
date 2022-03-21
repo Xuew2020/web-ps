@@ -1,9 +1,7 @@
-import { IColorRange, IImageData, IRgb } from "../type/global";
-import { hsv2Rgb, rgb2Gray, rgb2Hsv } from "../utils/colorSpace";
+import { IColorRange, IImageData, IRgb } from "@/type/global";
+import { hsv2Rgb, rgb2Gray, rgb2Hsv } from "./colorSpace";
 
-export type IFilter<T> = (imageData: IImageData, value?: T) => boolean;
-
-export type IFilterOnlyImageData = IFilter<null>;
+export type IFilter<T = null> = (imageData: IImageData, value?: T) => boolean;
 
 /**
  * 复制图像信息
@@ -22,7 +20,7 @@ export const copyImageArray: IFilter<Uint8ClampedArray> = (imageData, value) => 
 /**
  * 反色滤镜
  */
-export const invert: IFilterOnlyImageData = (imageData) => {
+export const invert: IFilter = (imageData) => {
   const { data, width, height } = imageData;
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
@@ -38,7 +36,7 @@ export const invert: IFilterOnlyImageData = (imageData) => {
 /**
  * 复古 -- 老照片滤镜
  */
-export const sepia: IFilterOnlyImageData = (imageData) => {
+export const sepia: IFilter = (imageData) => {
   const { data, width, height } = imageData;
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
@@ -57,7 +55,7 @@ export const sepia: IFilterOnlyImageData = (imageData) => {
 /**
  * 灰度滤镜
  */
-export const grayScale: IFilterOnlyImageData = (imageData) => {
+export const grayScale: IFilter = (imageData) => {
   const { data, width, height } = imageData;
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
@@ -78,7 +76,7 @@ export const grayScale: IFilterOnlyImageData = (imageData) => {
 /**
  * 二值滤镜
  */
-export const binary: IFilterOnlyImageData = (imageData) => {
+export const binary: IFilter = (imageData) => {
   const { data, width, height } = imageData;
   let color: IColorRange, index: number, grayColor: IColorRange;
   const threshold = 127;
@@ -103,7 +101,7 @@ export const binary: IFilterOnlyImageData = (imageData) => {
 /**
  * 黑白底片
  */
-export const blackAndWhiteInverse: IFilterOnlyImageData = (imageData) => {
+export const blackAndWhiteInverse: IFilter = (imageData) => {
   /* 先进行反色操作，再进行灰度处理 */
   invert(imageData);
   grayScale(imageData);
@@ -117,7 +115,7 @@ export const blackAndWhiteInverse: IFilterOnlyImageData = (imageData) => {
  * g = g*128/(r+b+1);
  * b = b*128/(r+g+1);
  */
-export const casting: IFilterOnlyImageData = (imageData) => {
+export const casting: IFilter = (imageData) => {
   const { data, width, height } = imageData;
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
@@ -140,7 +138,7 @@ export const casting: IFilterOnlyImageData = (imageData) => {
  * g = (g-b-r)*(3/2);
  * b = (b-g-r)*(3/2);
  */
-export const freezing: IFilterOnlyImageData = (imageData) => {
+export const freezing: IFilter = (imageData) => {
   const { data, width, height } = imageData;
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
@@ -159,7 +157,7 @@ export const freezing: IFilterOnlyImageData = (imageData) => {
 /**
  * 镜像滤镜
  */
-export const mirroring: IFilterOnlyImageData = (imageData) => {
+export const mirroring: IFilter = (imageData) => {
   const { data, width, height } = imageData;
   const col = Math.floor((width - 1) / 2);
   const len = width - 1;

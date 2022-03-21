@@ -1,4 +1,4 @@
-import { IRgb, IColorRange, IHsv } from '../type/global';
+import { IRgb, IColorRange, IHsv } from '@/type/global';
 
 export const rgb2Gray = ({ r, g, b }: IRgb) => {
   return r * 0.299 + g * 0.587 + b * 0.114;

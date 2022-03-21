@@ -1,10 +1,11 @@
 /**
  * 图层图层
  */
-import createCanvas from "../../utils/createCanvas";
-import createBackGroud from "../../utils/createBackGroud";
-import { crateElement } from "../../utils/dom";
+import createCanvas from "@/utils/createCanvas";
+import createBackGroud from "@/utils/createBackGroud";
+import { crateElement } from "@/utils/dom";
 import { LAYER_STATUS } from "./constants";
+import GLOBAL from './global';
 
 class ImageLayer {
   /**
@@ -54,16 +55,23 @@ class ImageLayer {
     const parentInfo = this.parentNode.getBoundingClientRect();
 
     // 初始化共享画布
-    [this.GLOBAL_CANVAS, this.GLOBAL_CXT] = createCanvas({
-      width: parentInfo.width,
-      height: parentInfo.height,
-    });
-    this.GLOBAL_CANVAS.style.position = "absolute";
-    this.GLOBAL_CANVAS.style.zIndex = "1000";
-    this.parentNode.appendChild(this.GLOBAL_CANVAS);
+    if (!GLOBAL.globalShareCanvasMap.has(this.parentNode)) {
+      [this.GLOBAL_CANVAS, this.GLOBAL_CXT] = createCanvas({
+        width: parentInfo.width,
+        height: parentInfo.height,
+      });
+      this.GLOBAL_CANVAS.style.position = "absolute";
+      this.GLOBAL_CANVAS.style.zIndex = "1000";
+      this.parentNode.appendChild(this.GLOBAL_CANVAS);
+      GLOBAL.globalShareCanvasMap.set(this.parentNode, this.GLOBAL_CANVAS);
+    }
 
     // 初始化背景图
-    // const BACKGROUND_CANVAS
+    if (!GLOBAL.globalBackgroundCanvasMap.has(this.parentNode)) {
+      const BACKGROUND_CANVAS = createBackGroud({ width: parentInfo.width, height: parentInfo.height });
+      this.parentNode.appendChild(BACKGROUND_CANVAS);
+      GLOBAL.globalBackgroundCanvasMap.set(this.parentNode, BACKGROUND_CANVAS);
+    }
   }
 
   //设置图像和操作区域的长宽及坐标信息
