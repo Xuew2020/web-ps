@@ -1,13 +1,15 @@
 /**
  * 图层图层
  */
-import createCanvas from "@/utils/createCanvas";
-import createBackGroud from "@/utils/createBackGroud";
-import { crateElement } from "@/utils/dom";
 import { LAYER_STATUS } from "./constants";
-import GLOBAL from './global';
+import {
+  setPosX,
+  setPosY,
+} from "@/utils/styleUtils";
+import { IRectInfo, IImageLayerPublicProperty, IConstructor } from "@/type/imageLayer";
+import initLayer from "./functions/initLayer";
 
-class ImageLayer {
+class ImageLayer implements IImageLayerPublicProperty {
   /**
    * 全局共享画布---代理所有图像的操作
    */
@@ -17,7 +19,7 @@ class ImageLayer {
   /**
    * 私有属性
    */
-  private parentNode: Element; //父节点
+  private parentNode: HTMLElement; //父节点
   private container: HTMLDivElement; //图像容器
   private imageArea: HTMLCanvasElement; //图像显示区域
   private operArea: HTMLCanvasElement; //图像操作区域
@@ -28,50 +30,17 @@ class ImageLayer {
   private tempCxt: CanvasRenderingContext2D; //临时图像画笔
   private baseInfo: any; //图层外围矩形边框信息、旋转角度 --- 提供图像数据
   private history: any[]; //操作记录
-  private rectInfo: any; //图层外围矩形边框信息
+  private rectInfo: IRectInfo; //图层外围矩形边框信息
   private status: LAYER_STATUS; //操作状态
   private isClearImageArea: boolean; //是否清空显示区域
   private scaleFlag: boolean; //判断在缩放时是否保存图像 --- 避免图片模糊
   private rotateFlag: boolean; //判断在旋转时是否保存矩形边框信息
 
-  constructor(parentNode: HTMLElement) {
+  constructor({ parentNode, rectInfo }: IConstructor) {
     if (!(parentNode instanceof HTMLElement)) {
       throw new Error("parentNode master instanceof HTMLElement!");
     }
-    // 初始化
-    this.parentNode = parentNode;
-    this.container = crateElement("div");
-    [this.imageArea, this.imageCxt] = createCanvas();
-    [this.operArea, this.operCxt] = createCanvas();
-    [this.tempArea, this.tempCxt] = createCanvas();
-    [this.scaleArea] = createCanvas();
-    this.baseInfo = {};
-    this.history = [];
-    this.status = LAYER_STATUS.FREEING;
-    this.isClearImageArea = false;
-    this.scaleFlag = true;
-    this.rotateFlag = true;
-
-    const parentInfo = this.parentNode.getBoundingClientRect();
-
-    // 初始化共享画布
-    if (!GLOBAL.globalShareCanvasMap.has(this.parentNode)) {
-      [this.GLOBAL_CANVAS, this.GLOBAL_CXT] = createCanvas({
-        width: parentInfo.width,
-        height: parentInfo.height,
-      });
-      this.GLOBAL_CANVAS.style.position = "absolute";
-      this.GLOBAL_CANVAS.style.zIndex = "1000";
-      this.parentNode.appendChild(this.GLOBAL_CANVAS);
-      GLOBAL.globalShareCanvasMap.set(this.parentNode, this.GLOBAL_CANVAS);
-    }
-
-    // 初始化背景图
-    if (!GLOBAL.globalBackgroundCanvasMap.has(this.parentNode)) {
-      const BACKGROUND_CANVAS = createBackGroud({ width: parentInfo.width, height: parentInfo.height });
-      this.parentNode.appendChild(BACKGROUND_CANVAS);
-      GLOBAL.globalBackgroundCanvasMap.set(this.parentNode, BACKGROUND_CANVAS);
-    }
+    initLayer({ parentNode, rectInfo });
   }
 
   //设置图像和操作区域的长宽及坐标信息
@@ -86,19 +55,18 @@ class ImageLayer {
   }
 
   private set x(value: number) {
-    this.imageArea.style.left = `${value}px`;
-    this.operArea.style.left = `${value}px`;
+    setPosX(this.imageArea, value);
+    setPosX(this.operArea, value);
   }
 
   private set y(value: number) {
-    this.imageArea.style.top = `${value}px`;
-    this.operArea.style.top = `${value}px`;
+    setPosY(this.imageArea, value);
+    setPosY(this.operArea, value);
   }
 
   /**
    * 私有方法
    */
-  private init() {}
   private reset() {}
   private store() {}
   private saveImage() {}
@@ -108,6 +76,31 @@ class ImageLayer {
   private initEraser() {}
   private brushMoveTo() {}
   private brushLineTo() {}
+
+  /**
+   * 公共方法
+   */
+   load() {}
+   getStatus() {}
+   getHistory() {}
+   getHistoryLength() {}
+   removeHistory() {}
+   restore() {}
+   resolve() {}
+   filter() {}
+   transform() {}
+   rotate() {}
+   translate() {}
+   scale() {}
+   saveClipArea() {}
+   clip() {}
+   pancil() {}
+   mosaic() {}
+   eraser() {}
+   saveImageMattingArea() {}
+   imageMatting() {}
+   paintBucket() {}
+   removeLayer() {}
 }
 
 export default ImageLayer;

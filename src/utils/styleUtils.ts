@@ -45,6 +45,13 @@ export enum CURSOR_TYPE {
   grabbin = "grabbin",
 }
 
+export enum OVERFLOW_TYPE {
+  visible = "visible",
+  hidden = "hidden",
+  scroll = "scroll",
+  auto = "auto",
+}
+
 /**
  * 设置css属性
  */
@@ -69,4 +76,48 @@ export const setCursor = (node: HTMLElement, type: CURSOR_TYPE) => {
  */
 export const setPosition = (node: HTMLElement, type: POSITION_TYPE) => {
   css(node, { position: type });
+};
+
+/**
+ * 设置x坐标
+ */
+export const setPosX = (node: HTMLElement, x: number | string) => {
+  if (typeof x === "number") {
+    css(node, { left: `${x}px` });
+    return;
+  }
+  css(node, { left: x });
+};
+
+/**
+ * 设置y坐标
+ */
+export const setPosY = (node: HTMLElement, y: number | string) => {
+  if (typeof y === "number") {
+    css(node, { top: `${y}px` });
+    return;
+  }
+  css(node, { top: y });
+};
+
+/**
+ * 设置宽度
+ */
+export const setWidth = (node: HTMLElement, width: number | string) => {
+  if (typeof width === "number") {
+    css(node, `${width}px`);
+    return;
+  }
+  css(node, width);
+};
+
+/**
+ * 设置高度
+ */
+export const setHeight = (node: HTMLElement, height: number | string) => {
+  if (typeof height === "number") {
+    css(node, `${height}px`);
+    return;
+  }
+  css(node, height);
 };
