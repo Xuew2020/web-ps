@@ -1,7 +1,7 @@
 export interface IImageLayerPublicProperty {
   load: () => void;
   getStatus: () => void;
-  getHistory: () => void;
+  getHistory: (index: number) => void;
   getHistoryLength: () => void;
   removeHistory: () => void;
   restore: () => void;
@@ -23,7 +23,7 @@ export interface IImageLayerPublicProperty {
 }
 
 export interface IConstructor {
-  parentNode: HTMLElement;
+  root: HTMLElement;
   rectInfo?: IRectInfo;
 }
 
