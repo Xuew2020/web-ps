@@ -1,5 +1,5 @@
 export interface IImageLayerPublicProperty {
-  load: () => void;
+  load: (url: string) => void;
   getStatus: () => void;
   getHistory: (index: number) => void;
   getHistoryLength: () => void;

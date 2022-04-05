@@ -1,6 +1,6 @@
-export const crateElement = document.createElement;
+export const createElement = tag => document.createElement(tag);
 
-export const createDocumentFragment = document.createDocumentFragment;
+export const createDocumentFragment = () => document.createDocumentFragment();
 
 export const append = (parentNode: Node, childNode: Node) => {
   parentNode.appendChild(childNode);

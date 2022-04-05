@@ -2,30 +2,31 @@
  * 图层图层
  */
 import { LAYER_STATUS } from "./constants";
-import { setPosX, setPosY } from "@/utils/styleUtils";
 import {
   IRectInfo,
   IImageLayerPublicProperty,
   IConstructor,
 } from "@/type/imageLayer";
-import createCanvas from "@/utils/createCanvas";
-import createBackGroud from "@/utils/createBackGroud";
+
 import {
+  createCanvas,
+  createBackGroud,
   append,
-  crateElement,
+  createElement,
   createDocumentFragment,
   getBoundingRect,
-} from "@/utils/dom";
-import GLOBAL from "./global";
-import {
   css,
   setPosition,
+  setPosX,
+  setPosY,
   POSITION_TYPE,
   OVERFLOW_TYPE,
-} from "@/utils/styleUtils";
-import HistoryManage, { IHistoryManage } from '@/helper/HistoryManage';
-import StatusManage, { IStatusManage } from '@/helper/StatusManage';
+  loadImage,
+} from "@/utils";
 
+import HistoryManage, { IHistoryManage } from "@/helper/HistoryManage";
+import StatusManage, { IStatusManage } from "@/helper/StatusManage";
+import GLOBAL from "./global";
 class ImageLayer implements IImageLayerPublicProperty {
   /**
    * 全局共享画布---代理所有图像的操作
@@ -60,7 +61,7 @@ class ImageLayer implements IImageLayerPublicProperty {
     });
     const parentInfo = getBoundingRect(this.root);
 
-    this.container = crateElement("div");
+    this.container = createElement("div");
     [this.imageArea, this.imageCxt] = createCanvas();
     [this.operArea, this.operCxt] = createCanvas();
     [this.tempArea, this.tempCxt] = createCanvas();
@@ -75,15 +76,15 @@ class ImageLayer implements IImageLayerPublicProperty {
     append(fragment, this.container);
 
     let x: number, y: number;
-    if (rectInfo === null) {
+    if (!rectInfo) {
       x = (parentInfo.width - this.imageArea.width) / 2;
       y = (parentInfo.height - this.imageArea.height) / 2;
     } else {
       x = rectInfo.x;
       y = rectInfo.y;
     }
-    this.x = x;
-    this.y = y;
+    this.setLayerX(x);
+    this.setLayerY(y);
     this.saveRectInfo({
       x,
       y,
@@ -116,7 +117,7 @@ class ImageLayer implements IImageLayerPublicProperty {
     }
 
     // 挂载到父元素上
-    append(fragment, this.root);
+    append(this.root, fragment);
   }
 
   constructor({ root, rectInfo }: IConstructor) {
@@ -125,26 +126,29 @@ class ImageLayer implements IImageLayerPublicProperty {
     }
     this.renderToRoot({ root, rectInfo });
     this.historyManage = new HistoryManage();
-    this.statusManage = new StatusManage(LAYER_STATUS.FREEING, LAYER_STATUS.FREEING);
+    this.statusManage = new StatusManage(
+      LAYER_STATUS.FREEING,
+      LAYER_STATUS.FREEING
+    );
   }
 
   //设置图像和操作区域的长宽及坐标信息
-  private set width(value: number) {
+  private setLayerWidth(value: number) {
     this.imageArea.width = value;
     this.operArea.width = value;
   }
 
-  private set height(value: number) {
+  private setLayerHeight(value: number) {
     this.imageArea.height = value;
     this.operArea.height = value;
   }
 
-  private set x(value: number) {
+  private setLayerX(value: number) {
     setPosX(this.imageArea, value);
     setPosX(this.operArea, value);
   }
 
-  private set y(value: number) {
+  private setLayerY(value: number) {
     setPosY(this.imageArea, value);
     setPosY(this.operArea, value);
   }
@@ -181,7 +185,32 @@ class ImageLayer implements IImageLayerPublicProperty {
   /**
    * 公共方法
    */
-  load() {}
+  load(url: string) {
+    loadImage(url)
+      .then((img) => {
+        let { width, height } = img;
+        let scale = 2 / 3;
+        let rectInfo = getBoundingRect(this.root);
+        if (img.width > rectInfo.width || img.height > rectInfo.height) {
+          if (img.width > img.height) {
+            height = (rectInfo.width * img.height) / img.width;
+            width = rectInfo.width;
+          } else {
+            width = (rectInfo.height * img.height) / img.width;
+            height = rectInfo.height;
+          }
+          width = width * scale;
+          height = height * scale;
+        }
+        this.setLayerWidth(width);
+        this.setLayerHeight(height);
+        this.imageCxt.drawImage(img, 0, 0, width, height);
+        this.store();
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
 
   getHistory(index: number) {
     return this.historyManage.getHistory(index);
