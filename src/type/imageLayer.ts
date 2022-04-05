@@ -1,3 +1,6 @@
+import { LAYER_STATUS } from "@/core/ImageLayer/constants";
+import { IImageData } from "./global";
+
 export interface IImageLayerPublicProperty {
   load: (url: string) => void;
   getStatus: () => void;
@@ -32,4 +35,10 @@ export interface IRectInfo {
   y: number;
   width: number;
   height: number;
+}
+
+export interface IHistoryData {
+  imageData: IImageData;
+  position: { x: number; y: number };
+  status: LAYER_STATUS;
 }

@@ -6,6 +6,7 @@ import {
   IRectInfo,
   IImageLayerPublicProperty,
   IConstructor,
+  IHistoryData,
 } from "@/type/imageLayer";
 
 import {
@@ -46,7 +47,7 @@ class ImageLayer implements IImageLayerPublicProperty {
   private imageCxt: CanvasRenderingContext2D; //显示区域画笔
   private operCxt: CanvasRenderingContext2D; //操作区域画笔
   private tempCxt: CanvasRenderingContext2D; //临时图像画笔
-  private historyManage: IHistoryManage<any>; //操作记录
+  private historyManage: IHistoryManage<IHistoryData>; //操作记录
   private rectInfo: IRectInfo; //图层外围矩形边框信息
   private statusManage: IStatusManage<LAYER_STATUS>; //操作状态
   private isClearImageArea: boolean; //是否清空显示区域
@@ -164,7 +165,30 @@ class ImageLayer implements IImageLayerPublicProperty {
     this.rotateFlag = true;
   }
 
-  private store() {}
+  private store() {
+    /**
+     *	1、data对象保存当前图像信息及位移
+     *	2、更新当前图像信息并将图像备份到临时区域
+     */
+    let data = {
+      imageData: this.imageCxt.getImageData(
+        0,
+        0,
+        this.imageArea.width,
+        this.imageArea.height
+      ),
+      position: { x: this.imageArea.offsetLeft, y: this.imageArea.offsetTop },
+      status: this.getStatus(),
+    };
+    this.setHistory(data);
+    this.saveRectInfo({
+      x: data.position.x,
+      y: data.position.y,
+      width: this.imageArea.width,
+      height: this.imageArea.height,
+    });
+    this.saveImage(); // 将当前图像在临时区域备份
+  }
 
   private saveImage() {}
 
@@ -210,6 +234,10 @@ class ImageLayer implements IImageLayerPublicProperty {
       .catch((err) => {
         console.error(err);
       });
+  }
+
+  setHistory(data: IHistoryData) {
+    this.historyManage.setHistory(data);
   }
 
   getHistory(index: number) {
