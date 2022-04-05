@@ -24,6 +24,7 @@ import {
   OVERFLOW_TYPE,
 } from "@/utils/styleUtils";
 import HistoryManage, { IHistoryManage } from '@/helper/HistoryManage';
+import StatusManage, { IStatusManage } from '@/helper/StatusManage';
 
 class ImageLayer implements IImageLayerPublicProperty {
   /**
@@ -46,7 +47,7 @@ class ImageLayer implements IImageLayerPublicProperty {
   private tempCxt: CanvasRenderingContext2D; //临时图像画笔
   private historyManage: IHistoryManage<any>; //操作记录
   private rectInfo: IRectInfo; //图层外围矩形边框信息
-  private status: LAYER_STATUS; //操作状态
+  private statusManage: IStatusManage<LAYER_STATUS>; //操作状态
   private isClearImageArea: boolean; //是否清空显示区域
   private scaleFlag: boolean; //判断在缩放时是否保存图像 --- 避免图片模糊
   private rotateFlag: boolean; //判断在旋转时是否保存矩形边框信息
@@ -124,6 +125,7 @@ class ImageLayer implements IImageLayerPublicProperty {
     }
     this.renderToRoot({ root, rectInfo });
     this.historyManage = new HistoryManage();
+    this.statusManage = new StatusManage(LAYER_STATUS.FREEING, LAYER_STATUS.FREEING);
   }
 
   //设置图像和操作区域的长宽及坐标信息
@@ -152,7 +154,7 @@ class ImageLayer implements IImageLayerPublicProperty {
    */
   private reset() {
     // 重置标志
-    this.status = LAYER_STATUS.FREEING;
+    this.statusManage.resetStatus();
     this.isClearImageArea = false;
     this.scaleFlag = true;
     this.rotateFlag = true;
@@ -181,8 +183,6 @@ class ImageLayer implements IImageLayerPublicProperty {
    */
   load() {}
 
-  getStatus() {}
-
   getHistory(index: number) {
     return this.historyManage.getHistory(index);
   }
@@ -193,6 +193,18 @@ class ImageLayer implements IImageLayerPublicProperty {
 
   removeHistory(index: number = -1) {
     this.historyManage.remove(index);
+  }
+
+  setStatus(status: LAYER_STATUS) {
+    this.statusManage.setStatus(status);
+  }
+
+  getStatus() {
+    return this.statusManage.getStatus();
+  }
+
+  checkStatus(status = LAYER_STATUS.FREEING) {
+    return this.statusManage.checkStatus(status);
   }
 
   restore() {}
