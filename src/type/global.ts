@@ -12,8 +12,4 @@ export interface IHsv {
   v: IColorRange;
 }
 
-export interface IImageData {
-  readonly data: Uint8ClampedArray;
-  readonly height: IColorRange;
-  readonly width: IColorRange;
-}
+export type IImageData = ImageData['data'];
