@@ -52,6 +52,12 @@ export enum OVERFLOW_TYPE {
   auto = "auto",
 }
 
+export enum DISPLAY_TYPE {
+  inline = "inline",
+  none = "none",
+  block = "block",
+}
+
 /**
  * 设置css属性
  */

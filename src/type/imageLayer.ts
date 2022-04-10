@@ -38,7 +38,7 @@ export interface IRectInfo {
 }
 
 export interface IHistoryData {
-  imageData: IImageData;
+  imageData: ImageData;
   position: { x: number; y: number };
   status: LAYER_STATUS;
 }

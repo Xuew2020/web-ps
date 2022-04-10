@@ -1,5 +1,5 @@
 import { createCanvas, css, setPosX, setPosY } from "@/utils";
-import { ICreateCanvasProps } from '@/utils/createCanvas'
+import { ICreateCanvasProps } from "@/utils/createCanvas";
 export interface IDrawImage {
   image: CanvasImageSource;
   dx?: number;
@@ -12,6 +12,16 @@ export interface IGetImageData {
   sw?: number;
   sh?: number;
   settings?: ImageDataSettings;
+}
+
+export interface IPutImageData {
+  image: ImageData;
+  dx?: number;
+  dy?: number;
+  dirtyX?: number;
+  dirtyY?: number;
+  dirtyWidth?: number;
+  dirtyHeight?: number;
 }
 
 export interface IImageManage {
@@ -28,6 +38,7 @@ export interface IImageManage {
   setStyles: (styles: Partial<CSSStyleDeclaration>) => void;
   drawImage: (data?: IDrawImage) => void;
   getImageData: (data?: IGetImageData) => ImageData;
+  putImageData: (data?: IPutImageData) => void;
   clear: () => void;
   addEvent: (eventName: string, fn: (e: Event) => void) => void;
   removeEvent: (eventName: string, fn: (e: Event) => void) => void;
@@ -105,6 +116,26 @@ class ImageManage implements IImageManage {
     settings,
   }: IGetImageData = {}) {
     return this.ctx.getImageData(sx, sy, sw, sh, settings);
+  }
+
+  putImageData({
+    image,
+    dx = 0,
+    dy = 0,
+    dirtyX,
+    dirtyY,
+    dirtyWidth,
+    dirtyHeight,
+  }: IPutImageData) {
+    this.ctx.putImageData(
+      image,
+      dx,
+      dy,
+      dirtyX,
+      dirtyY,
+      dirtyWidth,
+      dirtyHeight
+    );
   }
 
   clear() {

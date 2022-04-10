@@ -29,6 +29,7 @@ import HistoryManage, { IHistoryManage } from "@/helper/HistoryManage";
 import StatusManage, { IStatusManage } from "@/helper/StatusManage";
 import ImageManage, { IImageManage } from "@/helper/ImageManage";
 import GLOBAL from "./global";
+import { DISPLAY_TYPE } from "@/utils/styleUtils";
 class ImageLayer implements IImageLayerPublicProperty {
   /**
    * 全局共享画布---代理所有图像的操作
@@ -168,7 +169,7 @@ class ImageLayer implements IImageLayerPublicProperty {
      *	2、更新当前图像信息并将图像备份到临时区域
      */
     let data = {
-      imageData: this.imageArea.getImageData().data,
+      imageData: this.imageArea.getImageData(),
       position: { x: this.imageArea.getX(), y: this.imageArea.getY() },
       status: this.getStatus(),
     };
@@ -256,9 +257,74 @@ class ImageLayer implements IImageLayerPublicProperty {
     return this.statusManage.checkStatus(status);
   }
 
-  restore() {}
+  restore(index = this.getHistoryLength() - 1, remove = false) {
+    // 退回到第index次操作
+    /**
+     *	1、是否为数字以及边界判断
+     *	2、取出第index次的数据，设置到图像显示区域及操作区域
+     *	3、更新当前图像信息并将图像备份到临时区域
+     *	4、重置所有相关标记
+     */
+    if (
+      !Number.isInteger(index) ||
+      index < 0 ||
+      index >= this.getHistoryLength()
+    ) {
+      return;
+    }
 
-  resolve() {}
+    if (remove) {
+      // 清除多余记录
+      this.removeHistory(index);
+    }
+
+    const { position, imageData } = this.getHistory(index);
+    this.operArea.clear();
+    this.setLayerX(position.x);
+    this.setLayerY(position.y);
+    this.setLayerWidth(imageData.width);
+    this.setLayerHeight(imageData.height);
+
+    this.imageArea.putImageData({ image: imageData });
+    this.imageArea.setStyles({ display: DISPLAY_TYPE.inline });
+    this.saveRectInfo({
+      x: position.x,
+      y: position.y,
+      width: this.imageArea.getWidth(),
+      height: this.imageArea.getHeight(),
+    });
+    this.saveImage(); // 将当前图像在临时区域备份
+    this.reset(); // 重置
+  }
+
+  resolve() {
+    //确认操作
+    /**
+     *	1、如果状态为FREEING，说明没有操作图像，直接退出函数
+     *	2、根据isClearImageArea标记判断是否清除图像区域
+     *	3、将操作区域的图像画到图像显示区域并清除操作区域图像
+     *	4、重置操作区域以及共享区域
+     *	5、将当前图像保存，并重置所有相关标记
+     */
+    if (this.checkStatus()) {
+      return;
+    }
+    if (this.checkStatus(LAYER_STATUS.CLIP)) {
+      this.saveClipArea();
+    }
+    if (this.checkStatus(LAYER_STATUS.IMAGEMATTING)) {
+      this.saveImageMattingArea();
+    }
+    if (this.isClearImageArea) {
+      this.imageArea.clear();
+    }
+
+    this.imageArea.drawImage({ image: this.operArea.getCanvas() });
+    this.imageArea.setStyles({ display: DISPLAY_TYPE.inline });
+
+    this.store();
+    this.reset();
+  }
 
   filter() {}
 
