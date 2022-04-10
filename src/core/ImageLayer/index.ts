@@ -27,26 +27,23 @@ import {
 
 import HistoryManage, { IHistoryManage } from "@/helper/HistoryManage";
 import StatusManage, { IStatusManage } from "@/helper/StatusManage";
+import ImageManage, { IImageManage } from "@/helper/ImageManage";
 import GLOBAL from "./global";
 class ImageLayer implements IImageLayerPublicProperty {
   /**
    * 全局共享画布---代理所有图像的操作
    */
-  private GLOBAL_CANVAS: HTMLCanvasElement;
-  private GLOBAL_CXT: CanvasRenderingContext2D;
+  private GLOBAL_CANVAS: ImageManage;
 
   /**
    * 私有属性
    */
   private root: HTMLElement; //父节点
   private container: HTMLDivElement; //图像容器
-  private imageArea: HTMLCanvasElement; //图像显示区域
-  private operArea: HTMLCanvasElement; //图像操作区域
-  private tempArea: HTMLCanvasElement; //临时图像区域
-  private scaleArea: HTMLCanvasElement; //缩放操作保存图像的区域
-  private imageCxt: CanvasRenderingContext2D; //显示区域画笔
-  private operCxt: CanvasRenderingContext2D; //操作区域画笔
-  private tempCxt: CanvasRenderingContext2D; //临时图像画笔
+  private imageArea: IImageManage; //图像显示区域
+  private operArea: IImageManage; //图像操作区域
+  private tempArea: IImageManage; //临时图像区域
+  private scaleArea: IImageManage; //缩放操作保存图像的区域
   private historyManage: IHistoryManage<IHistoryData>; //操作记录
   private rectInfo: IRectInfo; //图层外围矩形边框信息
   private statusManage: IStatusManage<LAYER_STATUS>; //操作状态
@@ -63,23 +60,23 @@ class ImageLayer implements IImageLayerPublicProperty {
     const parentInfo = getBoundingRect(this.root);
 
     this.container = createElement("div");
-    [this.imageArea, this.imageCxt] = createCanvas();
-    [this.operArea, this.operCxt] = createCanvas();
-    [this.tempArea, this.tempCxt] = createCanvas();
-    [this.scaleArea] = createCanvas();
+    this.imageArea = new ImageManage();
+    this.operArea = new ImageManage();
+    this.tempArea = new ImageManage();
+    this.scaleArea = new ImageManage();
 
     // 挂载画布
     const fragment = createDocumentFragment();
-    setPosition(this.imageArea, POSITION_TYPE.absolute);
-    setPosition(this.operArea, POSITION_TYPE.absolute);
-    append(this.container, this.imageArea);
-    append(this.container, this.operArea);
+    this.imageArea.setStyles({ position: POSITION_TYPE.absolute });
+    this.operArea.setStyles({ position: POSITION_TYPE.absolute });
+    append(this.container, this.imageArea.getCanvas());
+    append(this.container, this.operArea.getCanvas());
     append(fragment, this.container);
 
     let x: number, y: number;
     if (!rectInfo) {
-      x = (parentInfo.width - this.imageArea.width) / 2;
-      y = (parentInfo.height - this.imageArea.height) / 2;
+      x = (parentInfo.width - this.imageArea.getWidth()) / 2;
+      y = (parentInfo.height - this.imageArea.getHeight()) / 2;
     } else {
       x = rectInfo.x;
       y = rectInfo.y;
@@ -89,21 +86,21 @@ class ImageLayer implements IImageLayerPublicProperty {
     this.saveRectInfo({
       x,
       y,
-      width: this.imageArea.width,
-      height: this.imageArea.height,
+      width: this.imageArea.getWidth(),
+      height: this.imageArea.getHeight(),
     });
 
     // 初始化共享画布
     if (!GLOBAL.globalShareCanvasMap.has(this.root)) {
-      [this.GLOBAL_CANVAS, this.GLOBAL_CXT] = createCanvas({
+      this.GLOBAL_CANVAS = new ImageManage({
         width: parentInfo.width,
         height: parentInfo.height,
       });
-      css(this.GLOBAL_CANVAS, {
+      this.GLOBAL_CANVAS.setStyles({
         position: POSITION_TYPE.absolute,
         zIndex: "1000",
       });
-      append(fragment, this.GLOBAL_CANVAS);
+      append(fragment, this.GLOBAL_CANVAS.getCanvas());
       GLOBAL.globalShareCanvasMap.set(this.root, this.GLOBAL_CANVAS);
     }
 
@@ -135,23 +132,23 @@ class ImageLayer implements IImageLayerPublicProperty {
 
   //设置图像和操作区域的长宽及坐标信息
   private setLayerWidth(value: number) {
-    this.imageArea.width = value;
-    this.operArea.width = value;
+    this.imageArea.setWidth(value);
+    this.operArea.setWidth(value);
   }
 
   private setLayerHeight(value: number) {
-    this.imageArea.height = value;
-    this.operArea.height = value;
+    this.imageArea.setHeight(value);
+    this.operArea.setHeight(value);
   }
 
   private setLayerX(value: number) {
-    setPosX(this.imageArea, value);
-    setPosX(this.operArea, value);
+    this.imageArea.setX(value);
+    this.operArea.setX(value);
   }
 
   private setLayerY(value: number) {
-    setPosY(this.imageArea, value);
-    setPosY(this.operArea, value);
+    this.imageArea.setY(value);
+    this.operArea.setY(value);
   }
 
   /**
@@ -171,21 +168,16 @@ class ImageLayer implements IImageLayerPublicProperty {
      *	2、更新当前图像信息并将图像备份到临时区域
      */
     let data = {
-      imageData: this.imageCxt.getImageData(
-        0,
-        0,
-        this.imageArea.width,
-        this.imageArea.height
-      ),
-      position: { x: this.imageArea.offsetLeft, y: this.imageArea.offsetTop },
+      imageData: this.imageArea.getImageData().data,
+      position: { x: this.imageArea.getX(), y: this.imageArea.getY() },
       status: this.getStatus(),
     };
     this.setHistory(data);
     this.saveRectInfo({
       x: data.position.x,
       y: data.position.y,
-      width: this.imageArea.width,
-      height: this.imageArea.height,
+      width: this.imageArea.getWidth(),
+      height: this.imageArea.getHeight(),
     });
     this.saveImage(); // 将当前图像在临时区域备份
   }
@@ -228,7 +220,7 @@ class ImageLayer implements IImageLayerPublicProperty {
         }
         this.setLayerWidth(width);
         this.setLayerHeight(height);
-        this.imageCxt.drawImage(img, 0, 0, width, height);
+        this.imageArea.drawImage({ image: img });
         this.store();
       })
       .catch((err) => {

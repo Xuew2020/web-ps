@@ -1,16 +1,16 @@
 import { createCanvas, css, setPosX, setPosY } from "@/utils";
-
+import { ICreateCanvasProps } from '@/utils/createCanvas'
 export interface IDrawImage {
   image: CanvasImageSource;
-  dx: number;
-  dy: number;
+  dx?: number;
+  dy?: number;
 }
 
 export interface IGetImageData {
-  sx: number;
-  sy: number;
-  sw: number;
-  sh: number;
+  sx?: number;
+  sy?: number;
+  sw?: number;
+  sh?: number;
   settings?: ImageDataSettings;
 }
 
@@ -26,9 +26,11 @@ export interface IImageManage {
   getCanvas: () => HTMLCanvasElement;
   getCtx: () => CanvasRenderingContext2D;
   setStyles: (styles: Partial<CSSStyleDeclaration>) => void;
-  drawImage: (data: IDrawImage) => void;
-  getImageData: (data: IGetImageData) => ImageData;
+  drawImage: (data?: IDrawImage) => void;
+  getImageData: (data?: IGetImageData) => ImageData;
   clear: () => void;
+  addEvent: (eventName: string, fn: (e: Event) => void) => void;
+  removeEvent: (eventName: string, fn: (e: Event) => void) => void;
 }
 
 class ImageManage implements IImageManage {
@@ -39,8 +41,8 @@ class ImageManage implements IImageManage {
   private x: number;
   private y: number;
 
-  constructor() {
-    [this.canvas, this.ctx] = createCanvas();
+  constructor(props?: ICreateCanvasProps) {
+    [this.canvas, this.ctx] = createCanvas(props);
   }
 
   setWidth(width: number) {
@@ -49,7 +51,7 @@ class ImageManage implements IImageManage {
   }
 
   getWidth() {
-    return this.width;
+    return this.width || this.canvas.width;
   }
 
   setHeight(height: number) {
@@ -58,7 +60,7 @@ class ImageManage implements IImageManage {
   }
 
   getHeight() {
-    return this.height;
+    return this.height || this.canvas.height;
   }
 
   setX(x: number) {
@@ -67,7 +69,7 @@ class ImageManage implements IImageManage {
   }
 
   getX() {
-    return this.x;
+    return this.x || 0;
   }
 
   setY(y: number) {
@@ -76,7 +78,7 @@ class ImageManage implements IImageManage {
   }
 
   getY() {
-    return this.y;
+    return this.y || 0;
   }
 
   getCanvas() {
@@ -91,7 +93,7 @@ class ImageManage implements IImageManage {
     css(this.canvas, styles);
   }
 
-  drawImage({ image, dx = 0, dy = 0 }) {
+  drawImage({ image, dx = 0, dy = 0 }: IDrawImage) {
     this.ctx.drawImage(image, dx, dy);
   }
 
@@ -101,12 +103,20 @@ class ImageManage implements IImageManage {
     sw = this.width,
     sh = this.height,
     settings,
-  }: IGetImageData) {
+  }: IGetImageData = {}) {
     return this.ctx.getImageData(sx, sy, sw, sh, settings);
   }
 
   clear() {
     this.ctx.clearRect(0, 0, this.width, this.height);
+  }
+
+  addEvent(eventName: string, fn: (e: Event) => void) {
+    this.canvas.addEventListener(eventName, fn);
+  }
+
+  removeEvent(eventName: string, fn: (e: Event) => void) {
+    this.canvas.removeEventListener(eventName, fn);
   }
 }
 

@@ -1,8 +1,11 @@
 import { createElement } from "./dom";
-export type ICreateCanvas = (data?: {
+
+export interface ICreateCanvasProps {
   width: number;
   height: number;
-}) => [HTMLCanvasElement, CanvasRenderingContext2D];
+}
+
+export type ICreateCanvas = (data?: ICreateCanvasProps) => [HTMLCanvasElement, CanvasRenderingContext2D];
 
 const createCanvas: ICreateCanvas = (data) => {
   const canvas = createElement("canvas");
