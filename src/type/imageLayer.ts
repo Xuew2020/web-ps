@@ -1,27 +1,27 @@
-import { LAYER_STATUS } from "@/core/ImageLayer/constants";
-import { IImageData } from "./global";
+import { LAYER_STATUS } from "@/core/constants";
+// import { IImageData } from "./global";
 
-export interface IImageLayerPublicProperty {
+export interface IImageLayer {
   load: (url: string) => void;
-  getStatus: () => void;
+  // getStatus: () => void;
   getHistory: (index: number) => void;
   getHistoryLength: () => void;
   removeHistory: () => void;
   restore: () => void;
   resolve: () => void;
-  filter: () => void;
-  transform: () => void;
-  rotate: () => void;
-  translate: () => void;
-  scale: () => void;
-  saveClipArea: () => void;
-  clip: () => void;
-  pancil: () => void;
-  mosaic: () => void;
-  eraser: () => void;
-  saveImageMattingArea: () => void;
-  imageMatting: () => void;
-  paintBucket: () => void;
+  // filter: () => void;
+  // transform: () => void;
+  // rotate: () => void;
+  // translate: () => void;
+  // scale: () => void;
+  // saveClipArea: () => void;
+  // clip: () => void;
+  // pancil: () => void;
+  // mosaic: () => void;
+  // eraser: () => void;
+  // saveImageMattingArea: () => void;
+  // imageMatting: () => void;
+  // paintBucket: () => void;
   removeLayer: () => void;
 }
 
