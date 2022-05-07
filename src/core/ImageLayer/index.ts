@@ -1,49 +1,26 @@
 /**
- * 图层图层
+ * 图像图层
  */
 import {
   IImageLayer,
   IConstructor,
-  IHistoryData,
 } from "@/type/imageLayer";
-import Layers, { ILayers } from "../Layers";
-class ImageLayer implements IImageLayer {
-  private layers: ILayers;
+import LayersAbstract from "../LayersAbstract";
+import { ILayers } from "../Layers";
+import TransformLayers, { ITransformLayers } from "../Transform";
+
+
+class ImageLayer extends LayersAbstract implements IImageLayer {
+  protected layers: ILayers;
+  protected transformLayers: ITransformLayers;
 
   constructor(props: IConstructor) {
-    this.layers = new Layers(props);
+    super(props);
+    this.transformLayers = new TransformLayers(this.layers);
   }
 
-  load(url: string) {
-    this.layers.load(url);
-  }
-
-  setHistory(data: IHistoryData) {
-    this.layers.setHistory(data);
-  }
-
-  getHistory(index: number) {
-    return this.layers.getHistory(index);
-  }
-
-  getHistoryLength() {
-    return this.layers.getHistoryLength();
-  }
-
-  removeHistory(index: number = -1) {
-    this.layers.removeHistory(index);
-  }
-
-  restore(index = this.getHistoryLength() - 1, remove = false) {
-    this.layers.restore(index, remove);
-  }
-
-  resolve() {
-   this.layers.save();
-  }
-
-  removeLayer() {
-    this.layers.removeLayer();
+  transform() {
+    this.transformLayers.transform();
   }
 }
 

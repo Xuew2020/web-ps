@@ -1,17 +1,18 @@
-import LayersFactory, { ILayersFactory } from "@/helper/LayersFactory";
+import LayersAbstract, { ILayersAbstractConstructor } from "../LayersAbstract";
 import { ILayers } from "../Layers";
 
-interface ITransform {
+export interface ITransformLayers {
   /**
    * 矩阵变换
    */
   transform: () => void;
 }
 
-export default class Transform implements ITransform  {
-  private layers: ILayers;
-  constructor(props: ILayersFactory) {
-    LayersFactory(props);
+export default class TransformLayers extends LayersAbstract implements ITransform  {
+  protected layers: ILayers;
+
+  constructor(props: ILayersAbstractConstructor) {
+    super(props);
     this.initEvent();
   }
 

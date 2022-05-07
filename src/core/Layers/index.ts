@@ -22,7 +22,7 @@ import {
 import HistoryManage, { IHistoryManage } from "@/helper/HistoryManage";
 import StatusManage, { IStatusManage } from "@/helper/StatusManage";
 import ImageManage, { IImageManage } from "@/helper/ImageManage";
-import GLOBAL from "../global";
+import GLOBAL from "../globalData";
 
 export interface ILayers {
   /**
@@ -84,7 +84,7 @@ export interface ILayers {
   /**
    * 检查状态
    */
-  checkStatus: (status: LAYER_STATUS) => boolean;
+  checkStatus: (status?: LAYER_STATUS) => boolean;
   /**
    * 保存画布信息
    */
