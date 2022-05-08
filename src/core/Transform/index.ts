@@ -6,9 +6,21 @@ export interface ITransformLayers {
    * 矩阵变换
    */
   transform: () => void;
+  /**
+   * 旋转
+   */
+  rotate: () => void;
+  /**
+   * 移动
+   */
+  translate: () => void;
+  /**
+   * 缩放
+   */
+  scale: () => void;
 }
 
-export default class TransformLayers extends LayersAbstract implements ITransform  {
+class TransformLayers extends LayersAbstract implements ITransformLayers {
   protected layers: ILayers;
 
   constructor(props: ILayersAbstractConstructor) {
@@ -16,32 +28,15 @@ export default class TransformLayers extends LayersAbstract implements ITransfor
     this.initEvent();
   }
 
-  private initEvent() {
+  private initEvent() {}
 
-  }
+  public rotate() {}
 
-  /**
-   * 旋转
-   */
-  private rotate() {
+  public translate() {}
 
-  }
+  public scale() {}
 
-  /**
-   * 移动
-   */
-  private translate() {
-
-  }
-
-  /**
-   * 缩放
-   */
-  private scale() {
-
-  }
-
-  public transform() {
-    
-  }
+  public transform() {}
 }
+
+export default TransformLayers;
